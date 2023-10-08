@@ -1,9 +1,4 @@
-version: '3.8'
-
-x-common-variables: &common-variables
-  MYSQL_DATABASE: books
-  MYSQL_USER: stellar
-  MYSQL_PASSWORD: password
+version: '3.0'
 
 services:
   mysql_db:
@@ -16,9 +11,10 @@ services:
     ports:
       - "9906:3306"
     environment:
-      <<: *common-variables
       MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD
       MYSQL_HOST: localhost
+    env_file:
+      - 'variables.env'
 
   nginx:
     depends_on:
@@ -30,6 +26,7 @@ services:
       context: ./nginx
     ports:
       - "3050:80"
+    image: bryancwh/mern-container-demo-nginx:latest
 
   api:
     build:
@@ -41,8 +38,10 @@ services:
       - /app/node_modules
       - ./server:/app
     environment:
-      <<: *common-variables
       MYSQL_HOST_IP: mysql_db
+    env_file:
+      - 'variables.env'
+    image: bryancwh/mern-container-demo-server:latest
 
   client:
     stdin_open: true
@@ -54,6 +53,7 @@ services:
     volumes:
       - /app/node_modules
       - ./client:/app
+    image: bryancwh/mern-container-demo-client:latest
 
   adminer:
       image: adminer:latest
